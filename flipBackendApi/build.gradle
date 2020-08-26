@@ -1,0 +1,95 @@
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion(28)
+
+    defaultConfig {
+        minSdkVersion(19)
+        targetSdkVersion(28)
+    }
+
+    // By default the android gradle plugin expects to find the kotlin source files in
+    // the folder `main` and the test in the folder `test`. This is to be able place
+    // the source code files inside androidMain and androidTest folders
+    sourceSets {
+        main {
+            manifest.srcFile 'src/androidMain/kotlin/AndroidManifest.xml'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
+kotlin {
+
+    targets {
+        fromPreset(presets.android, 'android')
+
+        def iosPreset = presets.iosX64
+        fromPreset(iosPreset, 'ios') {
+            binaries {
+                framework {
+                    // Disable bitcode embedding for the simulator build.
+                    if (iosPreset == presets.iosX64) {
+                        embedBitcode("disable")
+                    }
+                }
+            }
+            //compilations.main.outputKinds('FRAMEWORK')
+            compilations.each {
+                //it.extraOpts("-linkerOpts", "-lsqlite3")
+            }
+        }
+
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+
+            implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
+            implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+            implementation "io.ktor:ktor-client-core:$ktorVersion"
+            implementation "io.ktor:ktor-client-json:$ktorVersion"
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion"
+
+        }
+
+        androidMain.dependencies {
+            implementation "org.jetbrains.kotlin:kotlin-stdlib"
+            implementation "io.ktor:ktor-client-android:$ktorVersion"
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion"
+        }
+
+        iosMain.dependencies {
+            implementation("io.ktor:ktor-client-ios:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion")
+        }
+    }
+}
+
+task packForXCode {
+    def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
+    dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
+    //dependsOn "linkMainDebugFrameworkIOS"
+
+    doLast {
+        def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
+        def targetDir = getProperty("configuration.build.dir")
+        copy {
+            from srcFile.parent
+            into targetDir
+            include 'flipBackendApi.framework/**'
+            include 'flipBackendApi .framework.dSYM'
+        }
+    }
+}
