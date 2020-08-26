@@ -1,0 +1,3 @@
+include ':flipBackendApi'
+include ':app'
+rootProject.name = "Waysun Flip Backend Demo"
