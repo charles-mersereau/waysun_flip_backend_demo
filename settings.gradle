@@ -1,3 +1,4 @@
+include ':kotlin-lib'
 include ':flipBackendApi'
 include ':app'
 rootProject.name = "Waysun Flip Backend Demo"
