@@ -4,6 +4,6 @@ import com.waysuninc.flipbackendapi.entities.User
 
 interface UserApi {
 
-    suspend fun getUser(name: String): User
+    suspend fun getUser(username: String): User
 
 }

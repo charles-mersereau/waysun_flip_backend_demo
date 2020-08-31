@@ -84,7 +84,7 @@ kotlin {
     }
 
     android {
-        publishLibraryVariants("release")
+        publishLibraryVariants("release", "debug")
     }
 
     sourceSets {
@@ -92,10 +92,12 @@ kotlin {
             implementation fileTree(dir: "libs", include: ["*.jar"])
 
             implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
-            implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+//            implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
             implementation "io.ktor:ktor-client-core:$ktorVersion"
             implementation "io.ktor:ktor-client-json:$ktorVersion"
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion"
+            implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.8')
+            implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9')
 
         }
 
@@ -108,6 +110,7 @@ kotlin {
 
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-ios:$ktorVersion")
+            implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.3.8')
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion")
         }
     }
